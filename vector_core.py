@@ -2,6 +2,7 @@ from sentence_transformers import SentenceTransformer
 import numpy as np
 import os
 import gc
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
