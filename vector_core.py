@@ -1,24 +1,42 @@
 from sentence_transformers import SentenceTransformer
 import numpy as np
 import os
+import gc
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Provides methods to extract vectors from text
-class EmbeddingService:
+# Global placeholders
+_model = None
+_vectors = None
 
-    def __init__(self):
-        
+def get_resources():
+    """Lazy loader: Initializes model and vectors only on first request."""
+    global _model, _vectors
+    
+    if _model is None:
+        print("Lazy loading model and vectors into RAM...")
         token = os.getenv('HF_TOKEN')
         cache_dir = './model_cache'
+        
+        # Initialize model
+        _model = SentenceTransformer('all-MiniLM-L6-v2', cache_folder=cache_dir, token=token)
+        
+        # Load pre-computed vectors
+        _vectors = np.load('seed_vectors.npy')
+        
+        # Cleanup
+        gc.collect()
+        print("Initialization complete.")
+        
+    return _model, _vectors
 
-        self.model = SentenceTransformer('all-MiniLM-L6-v2',cache_folder= cache_dir, token= token)
-
+# Provides method to extract vectors from text
+class EmbeddingService:
     def embed(self, text: str):
-
-        vector = self.model.encode(text, normalize_embeddings = True) # normalizes the embeddings to have a length of 1 using L2 Normalization
-
+        # Fetch the model lazily
+        model, _ = get_resources()
+        vector = model.encode(text, normalize_embeddings=True)
         return vector
 
 # The main in-memory database
@@ -35,6 +53,13 @@ class LiteVectorDB:
         self.vectors = np.zeros((max_capacity, dimension), dtype= np.float32)
 
         self.metadata = {}
+
+    def load_seed_data(self):
+        _, seed_vectors = get_resources()
+        count = seed_vectors.shape[0]
+        self.vectors[:count] = seed_vectors
+        self.current_count = count
+        print(f"Loaded {count} seed vectors into DB.")
 
     #adds the embedding to the db while updating the metadata also
     def add_record(self, text: str, embedding: np.ndarray):
