@@ -56,10 +56,9 @@ class LiteVectorDB:
 
     def load_seed_data(self):
         _, seed_vectors = get_resources()
-        count = seed_vectors.shape[0]
-        self.vectors[:count] = seed_vectors
-        self.current_count = count
-        print(f"Loaded {count} seed vectors into DB.")
+        self.vectors[:seed_vectors.shape[0]] = seed_vectors
+        self.current_count = seed_vectors.shape[0]
+        print(f"Loaded {self.current_count} seed vectors into DB instance.")
 
     #adds the embedding to the db while updating the metadata also
     def add_record(self, text: str, embedding: np.ndarray):
