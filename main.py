@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
+from fastapi.middleware,cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from pydantic import BaseModel,Field
 import numpy as np
@@ -30,34 +31,15 @@ db = LiteVectorDB(dimension= 384, max_capacity= 10000) #initializes the LiteVect
 
 ai_service = EmbeddingService() #initializes the embedding service
 
-# Loads the pre-computed binary vectors into the database before starting the server to present a populated db for better testing
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     vector_file = "seed_vectors.npy" # binary numpy file containing the pre-computed embeddings
-#     metadata_file = "seed_metadata.json"# metadata file for the pre-computed embeddings containing the index and strings
-    
-#     if os.path.exists(vector_file) and os.path.exists(metadata_file):
-#         print("Loading pre-computed binary vectors into RAM...")
- 
-#         loaded_vectors = np.load(vector_file)
-
-#         with open(metadata_file, "r") as f:
-#             loaded_metadata = {int(k): v for k, v in json.load(f).items()}
-            
-#         num_records = loaded_vectors.shape[0]
-
-#         db.vectors[:num_records] = loaded_vectors
-#         db.metadata = loaded_metadata
-#         db.current_count = num_records
-            
-#         print(f"Successfully loaded {db.current_count} vectors. Database is ready.")
-#     else:
-#         print("No binary seed data found. Starting empty.")
-        
-#     yield
-
-
 app = FastAPI(title = "LiteVector AI Database", version = "1.0", description=api_description)#, lifespan = lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = [*],
+    allow_credentials = [*],
+    allow_methods = [*],
+    allow_headers = [*]
+)
 
 # To enforce strict datatype match when taking inputs
 class InsertRequest(BaseModel):
