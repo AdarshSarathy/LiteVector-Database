@@ -1,13 +1,16 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from contextlib import asynccontextmanager
+from ChunkingEngine import ChunkingEngine
 from pydantic import BaseModel,Field
 import numpy as np
+import pdfplumber
 import traceback
 import uvicorn
 import json
 import os
+import io
 
 from vector_core import EmbeddingService, LiteVectorDB
 
@@ -56,6 +59,26 @@ class SearchRequest(BaseModel):
 async def root():
     return RedirectResponse(url="/docs", status_code=307)
 
+@app.post("/upload")
+async def upload_document(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        contents = io.BytesIO(contents)
+        chunking_service = ChunkingEngine(500)
+
+        chunking_service.generate_chunks(contents)
+        chunked_strings = chunking_service.stringify_chunks()
+
+        for _ in chunked_strings:
+            vector = ai_service.embed(_)
+            db.add_record(text= _, embedding= vector)
+
+        return {'status': 'success', 'message': f'Document indexed at position {db.current_count-1}'}
+    except Exception as e:
+        raise HTTPException(status_code= 500, detail= str(e))
+        
+
+ 
 # Insert endpoint
 @app.post("/insert")
 async def insert_document(request: InsertRequest):
