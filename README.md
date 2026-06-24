@@ -6,13 +6,14 @@ Rather than relying on heavy, off-the-shelf database solutions, this project imp
 
 ---
 
-### 🌐 Live Demo
+## 🌐 Live Demos
 
-The database is currently deployed and accessible via the public web. You can interact with the live Swagger UI to run searches against the 4,000-document dataset.
+The architecture is fully deployed and accessible via the public web. You can interact with the complete user interface or query the raw backend API directly.
 
-👉 **[Live API Endpoints](https://litevector-database-production.up.railway.app/docs)**
+* 🖥️ **[Frontend UI Demo](https://lite-vector-ai-search-engine-lgkw4refl-adarsh-sarathy.vercel.app):** Interact with the live React application, featuring real-time data streaming and a responsive chat interface.
+* ⚙️ **[Backend API Swagger UI](https://litevector-database-production.up.railway.app/docs):** Directly query the vector database endpoints and test the search algorithms using the automatically generated OpenAPI documentation.
 
-> **Infrastructure Note:** This project is hosted on a free-tier Railway container. To conserve resources, the cloud provider spins the instance down after 15 minutes of inactivity. **The very first search you run may take 10–15 seconds** as the container wakes up and loads the AI model into RAM. All subsequent searches will execute in sub-millisecond time.
+> **Infrastructure Note:** The backend is hosted on a free-tier Railway container. To conserve resources, the instance spins down after 15 minutes of inactivity. The very first search you run may take 10–15 seconds as the container wakes up and loads the AI model into RAM. All subsequent searches execute in sub-millisecond time.
 
 ### 🧠 Core Architecture & Optimizations
 
