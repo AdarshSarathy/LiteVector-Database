@@ -66,8 +66,10 @@ class LiteVectorDB:
     #due to normalizing the embeddings when adding them to the db, ||A|| and ||B|| equal to 1
     #hence the new cosine similarity formula becomes: cosine_similarities = A.B
     def search(self, query_vector: np.ndarray, top_k: int):
-
-        valid_vectors = self.vectors[:self.current_count] # A
+        if self.current_count > 4000:
+            valid_vectors = self.vectors[3999:self.current_count] # A
+        else:
+            valid_vectors = self.vectors[:self.current_count] # A
 
         #dot_products = np.dot(valid_vectors, query_vector) -> computes (A.B) where B = query_vector
 
